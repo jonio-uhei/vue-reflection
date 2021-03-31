@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="css/style.css">
+        <title>Vueで作った反射神経ゲーム</title>
+    </head>
+    <body>
+        <div id="app">   
+            <span v-for="buttonNumber in 25">
+                <button 
+                    :class="buttonClass(buttonNumber)"
+                    @click="answer(buttonNumber)"
+                ></button>
+                <br v-if="buttonNumber%5 == 0">
+            </span>
+            <br>
+            <br>
+            <h4>{{secondsInHMS}}</h4>
+            <button 
+                class="btn btn-lg btn-dark"
+                @click="start()"
+            >スタート</button>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
+        <script>
+
+            var app = new Vue({
+                el: '#app',
+                data:{
+                    seconds:0,
+                    timer:null,
+                    count:0,
+                    currentNumber:0
+                },
+                methods:{
+                    strPad(number){
+                        let str = number.toString();
+                        if(str.toString().length == 1){
+                            str = '0'+str;
+                        }
+                        return str;
+                    },
+                    start(){
+                        this.count = 0;
+                        if(this.timer != null){
+                            clearInterval(this.timer);
+                        }
+                        this.timer = setInterval(()=>{
+                            this.seconds ++;
+                            this.setRandomNumber();
+                        },1000);
+                        this.setRandomNumber();
+                    },
+                    buttonClass(number){
+                        let classNames = ['circle-button'];
+                        if(number == this.currentNumber){
+                            classNames.push('current-button');
+                        }
+                        return classNames;
+                    },
+                    setRandomNumber(){
+                        this.currentNumber = Math.floor((Math.random()*25)+1);
+                    },
+                    answer(number){
+                        if(number == this.currentNumber){
+
+                            this.count ++;
+                            if(this.count == 10){
+                                clearInterval(this.timer);
+                                alert("ゴール！\n結果は「"+this.secondsInHMS+"」でした。")
+                            }
+                            this.setRandomNumber();
+                        }else{
+                            this.seconds += 10;
+                        }
+                    }
+                },
+                computed:{
+                    secondsInHMS(){
+                        const hours = Math.floor(this.seconds/3600);
+                        const minutes = Math.floor(this.seconds % 3600 / 60);
+                        const seconds = Math.floor(this.seconds % 3600 % 60);
+                        return this.strPad(hours) + ':' + this.strPad(minutes) + ':' + this.strPad(seconds);
+                    }
+                }
+                
+            })
+        </script>
+        <style>
+            body {
+                padding: 15px;
+            }
+            .circle-button {
+                margin: 10px;
+                text-align: center;
+                vertical-align: middle;
+                height: 75px;
+                width: 75px;
+                border-radius: 50%;
+                color: #999999;
+                border: 4px solid #CCCCCC;
+                background: #fff;
+                outline: none !important;
+            }
+            .current-button {
+                color: #f44336;
+                border: 4px solid #f44336;
+            }
+            #app{
+                width:600px;
+                margin:0 auto;
+            }
+        </style>
+    </body>
+</html>
